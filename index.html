@@ -1,0 +1,2078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Niharika Suru — UI/UX Designer & Frontend Developer</title>
+<meta name="description" content="UI/UX Designer & Frontend Developer with 3+ years crafting enterprise applications, design systems, and digital experiences.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<!-- Supabase Client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ─── RESET & ROOT ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #F8F7F5;
+  --bg2: #F0EEE9;
+  --ink: #111111;
+  --ink2: #333333;
+  --muted: #888888;
+  --accent: #7A5CFA;
+  --accent-light: #EDE8FF;
+  --accent-mid: #A08BFB;
+  --white: #FFFFFF;
+  --border: rgba(17,17,17,0.1);
+  --f-display: 'Cormorant Garamond', Georgia, serif;
+  --f-body: 'DM Sans', sans-serif;
+  --f-mono: 'DM Mono', monospace;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease2: cubic-bezier(0.4, 0, 0.2, 1);
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--f-body);
+  background: var(--bg);
+  color: var(--ink);
+  overflow-x: hidden;
+  cursor: none;
+}
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+::selection { background: var(--accent); color: #fff; }
+
+/* ─── CUSTOM CURSOR ─────────────────────────────────────── */
+#cursor {
+  position: fixed; width: 12px; height: 12px;
+  background: var(--accent); border-radius: 50%;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width .3s var(--ease), height .3s var(--ease), background .3s;
+  mix-blend-mode: multiply;
+}
+#cursor-ring {
+  position: fixed; width: 36px; height: 36px;
+  border: 1.5px solid var(--accent); border-radius: 50%;
+  pointer-events: none; z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: all .5s var(--ease);
+  opacity: 0.5;
+}
+body:hover #cursor { opacity: 1; }
+
+/* ─── LOADING SCREEN ────────────────────────────────────── */
+#loader {
+  position: fixed; inset: 0; background: var(--ink);
+  z-index: 10000; display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 1rem;
+  transition: opacity .8s var(--ease), transform .8s var(--ease);
+}
+#loader.hide { opacity: 0; pointer-events: none; transform: translateY(-4px); }
+.loader-name {
+  font-family: var(--f-display);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: var(--bg);
+  font-weight: 300; letter-spacing: 0.05em;
+  overflow: hidden;
+}
+.loader-name span { display: inline-block; animation: slideUp .9s var(--ease) both; }
+.loader-name span:nth-child(2) { animation-delay: .1s; font-style: italic; }
+.loader-bar {
+  width: 200px; height: 1px; background: rgba(255,255,255,0.15);
+  position: relative; overflow: hidden;
+}
+.loader-bar::after {
+  content: ''; position: absolute; inset: 0; left: -100%;
+  background: var(--accent);
+  animation: loadBar 1.4s var(--ease) forwards;
+}
+@keyframes loadBar { to { left: 0; } }
+@keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ─── NAV ────────────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 1.5rem 3rem;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background .4s, border-color .4s, backdrop-filter .4s;
+  border-bottom: 1px solid transparent;
+}
+nav.scrolled {
+  background: rgba(248,247,245,0.88);
+  backdrop-filter: blur(20px);
+  border-color: var(--border);
+}
+.nav-logo {
+  font-family: var(--f-display);
+  font-size: 1.3rem; font-weight: 500; letter-spacing: 0.02em;
+}
+.nav-logo span { font-style: italic; color: var(--accent); }
+.nav-links { display: flex; align-items: center; gap: 2.5rem; }
+.nav-links a {
+  font-size: 0.8rem; font-weight: 400; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
+  transition: color .3s; position: relative;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+  height: 1px; background: var(--accent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .35s var(--ease);
+}
+.nav-links a:hover { color: var(--ink); }
+.nav-links a:hover::after { transform: scaleX(1); }
+.nav-links a.active { color: var(--accent); }
+.nav-links a.active::after { transform: scaleX(1); }
+.nav-cta {
+  font-size: 0.78rem; font-weight: 500; letter-spacing: 0.06em;
+  text-transform: uppercase; padding: 0.6rem 1.4rem;
+  background: var(--ink); color: var(--bg);
+  border-radius: 100px; transition: background .3s, transform .3s;
+}
+.nav-cta:hover { background: var(--accent); transform: translateY(-1px); }
+
+/* ─── HERO ───────────────────────────────────────────────── */
+#hero {
+  min-height: 100vh; padding: 0 3rem;
+  display: grid; grid-template-columns: 1fr 1fr;
+  align-items: center; gap: 4rem;
+  padding-top: 7rem;
+  position: relative; overflow: hidden;
+}
+.hero-left { padding: 3rem 0; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--accent); font-weight: 500;
+  margin-bottom: 1.8rem; font-family: var(--f-mono);
+}
+.hero-eyebrow::before {
+  content: ''; width: 32px; height: 1px; background: var(--accent);
+}
+.hero-headline {
+  font-family: var(--f-display);
+  font-size: clamp(3rem, 5vw, 5.5rem);
+  font-weight: 300; line-height: 1.08;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.8rem;
+}
+.hero-headline em { font-style: italic; color: var(--accent); }
+.hero-sub {
+  font-size: 1.05rem; line-height: 1.7; color: var(--muted);
+  max-width: 480px; margin-bottom: 3rem; font-weight: 300;
+}
+.hero-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 3.5rem; }
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: var(--ink); color: var(--bg);
+  padding: 0.85rem 2rem; border-radius: 100px;
+  font-size: 0.85rem; font-weight: 500; letter-spacing: 0.04em;
+  transition: all .3s var(--ease);
+}
+.btn-primary:hover { background: var(--accent); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(122,92,250,0.3); }
+.btn-outline {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  border: 1.5px solid var(--border);
+  padding: 0.85rem 1.8rem; border-radius: 100px;
+  font-size: 0.85rem; font-weight: 400; letter-spacing: 0.04em;
+  color: var(--ink2); transition: all .3s var(--ease);
+}
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+.btn-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1.5px solid var(--border);
+  color: var(--ink2); transition: all .3s var(--ease);
+  font-size: 1.1rem;
+}
+.btn-icon:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+.hero-stats {
+  display: flex; gap: 3rem; padding-top: 2.5rem;
+  border-top: 1px solid var(--border);
+}
+.stat-item { flex: 1; }
+.stat-num {
+  font-family: var(--f-display);
+  font-size: 2.8rem; font-weight: 500; line-height: 1;
+  color: var(--ink); letter-spacing: -0.02em;
+}
+.stat-num span { color: var(--accent); }
+.stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 0.3rem; letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* Hero right visual */
+.hero-right { position: relative; height: 620px; }
+.hero-visual-main {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, #EDE8FF 0%, #F0EEE9 50%, #E8E4FF 100%);
+  border-radius: 24px; overflow: hidden;
+}
+.hero-visual-grid {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(122,92,250,0.06) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(122,92,250,0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.hero-card-float {
+  position: absolute; background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+  padding: 1.2rem 1.5rem; font-size: 0.82rem;
+}
+.hcf1 { top: 10%; left:2%; width: 200px; animation: float1 6s ease-in-out infinite; }
+.hcf2 { bottom: 20%; right: -6%; width: 180px; animation: float2 7s ease-in-out infinite; }
+.hcf3 { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 240px; animation: float3 5s ease-in-out infinite; }
+@keyframes float1 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+@keyframes float2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(10px)} }
+@keyframes float3 { 0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-50%,-52%) scale(1.02)} }
+.hcf-label { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+.hcf-val { font-family: var(--f-display); font-size: 1.4rem; font-weight: 500; color: var(--ink); }
+.hcf-val em { font-style: normal; color: var(--accent); }
+.hcf-bar { height: 4px; background: var(--bg2); border-radius: 2px; margin-top: 0.8rem; overflow: hidden; }
+.hcf-bar-fill { height: 100%; background: var(--accent); border-radius: 2px; }
+.hcf-chip {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  background: var(--accent-light); color: var(--accent);
+  padding: 0.2rem 0.6rem; border-radius: 100px;
+  font-size: 0.65rem; font-weight: 500; letter-spacing: 0.04em;
+  margin-top: 0.5rem;
+}
+.hcf-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ─── SECTION SHELL ─────────────────────────────────────── */
+.section { padding: 7rem 3rem; }
+.section-alt { background: var(--bg2); }
+.section-dark { background: var(--ink); color: var(--bg); }
+.section-header { margin-bottom: 5rem; }
+.section-label {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--accent); font-family: var(--f-mono); margin-bottom: 1.2rem;
+}
+.section-label::before { content: ''; width: 24px; height: 1px; background: var(--accent); }
+.section-title {
+  font-family: var(--f-display);
+  font-size: clamp(2.5rem, 4vw, 4rem);
+  font-weight: 300; line-height: 1.1; letter-spacing: -0.02em;
+}
+.section-title em { font-style: italic; color: var(--accent); }
+.section-sub {
+  font-size: 1rem; color: var(--muted); max-width: 520px;
+  margin-top: 1rem; line-height: 1.7; font-weight: 300;
+}
+.section-dark .section-sub { color: rgba(248,247,245,0.5); }
+.section-dark .section-label { color: var(--accent-mid); }
+.section-dark .section-label::before { background: var(--accent-mid); }
+
+/* ─── ABOUT ─────────────────────────────────────────────── */
+#about .about-grid {
+  display: grid; grid-template-columns: 5fr 4fr; gap: 8rem; align-items: center;
+}
+.about-text p {
+  font-size: 1.05rem; line-height: 1.9; color: var(--ink2);
+  margin-bottom: 1.5rem; font-weight: 300;
+}
+.about-text p strong { color: var(--ink); font-weight: 500; }
+.about-metrics { display: flex; flex-direction: column; gap: 1.5rem; }
+.metric-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.8rem 2rem;
+  display: flex; align-items: center; gap: 1.2rem;
+  transition: transform .3s var(--ease), box-shadow .3s var(--ease);
+}
+.metric-card:hover { transform: translateX(8px); box-shadow: 0 8px 32px rgba(0,0,0,0.06); }
+.metric-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: var(--accent-light); display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; flex-shrink: 0;
+}
+.metric-num {
+  font-family: var(--f-display); font-size: 2.2rem; font-weight: 500;
+  line-height: 1; color: var(--ink); letter-spacing: -0.02em;
+}
+.metric-num span { color: var(--accent); }
+.metric-desc { font-size: 0.82rem; color: var(--muted); margin-top: 0.3rem; line-height: 1.5; }
+
+/* ─── WORK / CASE STUDIES (Redesigned) ───────────────────────────────── */
+#work { padding-bottom: 5rem; }
+.work-grid { display: flex; flex-direction: column; gap: 2.5rem; }
+
+/* Case Study Card - Full Width Professional Layout */
+.case-study {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  background: var(--white);
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: transform .4s var(--ease), box-shadow .4s var(--ease);
+}
+.case-study:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 32px 80px rgba(122, 92, 250, 0.12);
+}
+.case-study:nth-child(even) { direction: rtl; }
+.case-study:nth-child(even) > * { direction: ltr; }
+
+/* Visual Side */
+.cs-visual {
+  position: relative;
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.cs-visual-bg {
+  position: absolute;
+  inset: 0;
+  transition: transform .6s var(--ease);
+}
+.case-study:hover .cs-visual-bg { transform: scale(1.05); }
+.cs-bg-purple { background: linear-gradient(145deg, #EDE8FF 0%, #D4CAFF 50%, #C4B8FF 100%); }
+.cs-bg-blue { background: linear-gradient(145deg, #E8F4FF 0%, #C8E4FF 50%, #B8D8FF 100%); }
+.cs-bg-green { background: linear-gradient(145deg, #E8FFF0 0%, #C8F0D0 50%, #B8E8C0 100%); }
+
+.cs-mockup {
+  position: relative;
+  z-index: 2;
+  padding: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cs-mockup-icon {
+  width: 120px;
+  height: 120px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+  transition: transform .4s var(--ease);
+}
+.case-study:hover .cs-mockup-icon { transform: scale(1.08) rotate(2deg); }
+
+.cs-badge {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  padding: 0.5rem 1rem;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  z-index: 3;
+}
+
+/* Content Side */
+.cs-content {
+  padding: 2rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cs-header {
+  margin-bottom: 1.2rem;
+}
+.cs-category {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  font-family: var(--f-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+.cs-category::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+.cs-title {
+  font-family: var(--f-display);
+  font-size: 1.6rem;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+.cs-subtitle {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* Problem / Solution / Outcome Grid */
+.cs-details {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+.cs-detail-item {
+  padding: 0.8rem 1rem;
+  background: var(--bg2);
+  border-radius: 10px;
+  border-left: 3px solid transparent;
+  transition: all .3s var(--ease);
+}
+.cs-detail-item:hover {
+  background: var(--accent-light);
+  border-left-color: var(--accent);
+}
+.cs-detail-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+.cs-detail-text {
+  font-size: 0.78rem;
+  color: var(--ink2);
+  line-height: 1.5;
+}
+
+/* Metrics Row */
+.cs-metrics {
+  display: flex;
+  gap: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  margin-bottom: 1.2rem;
+}
+.cs-metric {
+  flex: 1;
+}
+.cs-metric-value {
+  font-family: var(--f-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--accent);
+  line-height: 1;
+}
+.cs-metric-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Footer */
+.cs-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cs-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.cs-tag {
+  padding: 0.4rem 0.9rem;
+  background: var(--bg2);
+  border-radius: 100px;
+  font-size: 0.72rem;
+  color: var(--ink2);
+  font-weight: 500;
+}
+.cs-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 1.5rem;
+  background: var(--ink);
+  color: white;
+  border-radius: 100px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition: all .3s var(--ease);
+  text-decoration: none;
+}
+.cs-cta:hover {
+  background: var(--accent);
+  transform: translateX(4px);
+}
+
+/* ─── CASE STUDY MODAL ──────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  z-index: 1000; opacity: 0; pointer-events: none;
+  transition: opacity .4s var(--ease);
+  display: flex; align-items: flex-start; justify-content: center;
+  overflow-y: auto; padding: 2rem;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--bg); width: 100%; max-width: 900px;
+  border-radius: 24px; overflow: hidden;
+  transform: translateY(40px); transition: transform .5s var(--ease);
+  margin: auto;
+}
+.modal-overlay.open .modal { transform: none; }
+.modal-hero {
+  height: 300px; display: flex; align-items: center; justify-content: center;
+  font-size: 5rem; position: relative;
+}
+.modal-close {
+  position: absolute; top: 1.5rem; right: 1.5rem;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,0.9); border: none; cursor: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; transition: background .3s;
+}
+.modal-close:hover { background: var(--ink); color: white; }
+.modal-body { padding: 3rem; }
+.modal-tag {
+  font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--accent); font-family: var(--f-mono); margin-bottom: 0.8rem;
+}
+.modal-title {
+  font-family: var(--f-display); font-size: 2.5rem; font-weight: 300;
+  margin-bottom: 2.5rem; letter-spacing: -0.02em; line-height: 1.1;
+}
+.modal-section { margin-bottom: 2.5rem; }
+.modal-section-label {
+  font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted); font-family: var(--f-mono);
+  margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.6rem;
+}
+.modal-section-label::before { content: ''; flex: 1; height: 1px; background: var(--border); }
+.modal-section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.modal-section h3 { font-family: var(--f-display); font-size: 1.4rem; font-weight: 400; margin-bottom: 0.8rem; }
+.modal-section p { font-size: 0.92rem; line-height: 1.8; color: var(--ink2); font-weight: 300; }
+.modal-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 1.5rem; }
+.modal-card {
+  background: var(--bg2); border-radius: 12px; padding: 1.5rem;
+  border: 1px solid var(--border);
+}
+.modal-card h4 { font-size: 0.8rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.6rem; }
+.modal-card p { font-size: 0.85rem; line-height: 1.6; color: var(--ink2); }
+.outcome-stat {
+  font-family: var(--f-display); font-size: 3rem; font-weight: 300;
+  color: var(--accent); line-height: 1;
+}
+.outcome-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.3rem; }
+.modal-steps { display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; }
+.modal-step { display: flex; align-items: flex-start; gap: 1rem; }
+.step-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--accent-light); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 500; flex-shrink: 0; margin-top: 0.1rem;
+}
+.step-content h4 { font-size: 0.9rem; font-weight: 500; margin-bottom: 0.3rem; }
+.step-content p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+/* ─── PROCESS ───────────────────────────────────────────── */
+#process { overflow: hidden; }
+.process-track {
+  display: flex; gap: 0; position: relative;
+  margin-top: 1rem;
+}
+.process-track::before {
+  content: ''; position: absolute;
+  top: 40px; left: 40px; right: 40px; height: 1px;
+  background: linear-gradient(90deg, var(--accent) 0%, rgba(122,92,250,0.2) 100%);
+}
+.process-step {
+  flex: 1; padding: 0 1.5rem; text-align: center;
+  position: relative; padding-top: 0;
+}
+.ps-icon {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: var(--white); border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; margin: 0 auto 1.2rem;
+  position: relative; z-index: 1;
+  transition: all .3s var(--ease);
+}
+.process-step:hover .ps-icon {
+  background: var(--accent); border-color: var(--accent);
+  transform: scale(1.1); box-shadow: 0 0 0 8px var(--accent-light);
+}
+.process-step:hover .ps-icon i,
+.process-step:hover .ps-icon svg { color: white !important; stroke: white !important; }
+.process-step:hover .ps-icon .ps-emoji { filter: grayscale(0); }
+.ps-num {
+  font-family: var(--f-mono); font-size: 0.65rem; color: var(--accent);
+  letter-spacing: 0.1em; margin-bottom: 0.5rem;
+}
+.ps-label {
+  font-family: var(--f-display); font-size: 1.1rem; font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+.ps-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+
+/* ─── SKILLS (Redesigned - Bento Grid Style) ────────────────────────────────────────── */
+#skills .skills-container { 
+  display: grid; 
+  grid-template-columns: repeat(12, 1fr); 
+  grid-template-rows: auto;
+  gap: 1.2rem; 
+}
+
+.skill-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 1.8rem;
+  position: relative;
+  overflow: hidden;
+  transition: all .3s var(--ease);
+}
+
+.skill-card:hover { 
+  transform: translateY(-4px); 
+  box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+  border-color: rgba(122,92,250,0.3);
+}
+
+.skill-card > * { position: relative; z-index: 1; }
+
+/* Card sizes */
+.skill-card.large { grid-column: span 4; grid-row: span 2; }
+.skill-card.medium { grid-column: span 4; }
+.skill-card.small { grid-column: span 3; }
+.skill-card.wide { grid-column: span 6; }
+
+.skill-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
+}
+
+.skill-card-icon {
+  width: 56px;
+  height: 56px;
+  background: var(--accent-light);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .3s var(--ease);
+}
+
+.skill-card:hover .skill-card-icon { transform: scale(1.05); }
+
+.skill-card-icon i { color: var(--accent); width: 28px; height: 28px; }
+
+.skill-card-badge {
+  font-size: 0.65rem;
+  font-family: var(--f-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-light);
+  padding: 0.3rem 0.7rem;
+  border-radius: 100px;
+}
+
+.skill-card-title {
+  font-family: var(--f-display);
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 0.8rem;
+  color: var(--ink);
+}
+
+.skill-card.large .skill-card-title { font-size: 1.8rem; }
+
+.skill-card-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+}
+
+.skill-card-list li {
+  font-size: 0.82rem;
+  color: var(--ink2);
+  background: var(--bg2);
+  padding: 0.4rem 0.9rem;
+  border-radius: 100px;
+  transition: all .3s var(--ease);
+}
+
+.skill-card-list li:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+/* Badge-only skill tags */
+.skill-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.skill-badge {
+  font-size: 0.82rem;
+  color: var(--ink2);
+  background: var(--bg2);
+  padding: 0.5rem 1rem;
+  border-radius: 100px;
+  transition: all .3s var(--ease);
+  font-weight: 500;
+}
+
+.skill-badge:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.skill-badge.primary {
+  background: var(--accent);
+  color: white;
+}
+
+.skill-badge.primary:hover {
+  background: var(--accent-mid);
+  color: white;
+}
+
+/* Featured skills with icons */
+.skill-featured-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.skill-featured-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.8rem;
+  background: var(--bg2);
+  border-radius: 12px;
+  font-size: 0.85rem;
+  color: var(--ink2);
+  transition: all .3s var(--ease);
+}
+
+.skill-featured-item:hover { 
+  background: var(--accent-light); 
+  color: var(--accent);
+}
+
+.skill-featured-item i { width: 18px; height: 18px; color: var(--accent); }
+
+/* Tool logos row */
+.tool-logos {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.tool-logo {
+  width: 48px;
+  height: 48px;
+  background: var(--bg2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .3s var(--ease);
+}
+
+.tool-logo i { width: 24px; height: 24px; color: var(--ink2); }
+.tool-logo:hover { background: var(--accent-light); }
+.tool-logo:hover i { color: var(--accent); }
+
+/* Progress indicator */
+.skill-progress {
+  margin-top: 1.5rem;
+}
+
+.skill-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.skill-progress-bar {
+  height: 6px;
+  background: var(--bg2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.skill-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-mid));
+  border-radius: 3px;
+  transition: width 1s var(--ease);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .case-study { grid-template-columns: 1fr; }
+  .case-study:nth-child(even) { direction: ltr; }
+  .cs-visual { min-height: 320px; }
+  .skill-card.large, .skill-card.medium, .skill-card.wide { grid-column: span 6; }
+  .skill-card.small { grid-column: span 6; }
+  .skill-card.large { grid-row: span 1; }
+}
+@media (max-width: 640px) {
+  .cs-content { padding: 2rem; }
+  .cs-title { font-size: 1.5rem; }
+  .cs-metrics { flex-direction: column; gap: 1rem; }
+  .cs-footer { flex-direction: column; gap: 1rem; align-items: flex-start; }
+  .skill-card.large, .skill-card.medium, .skill-card.wide, .skill-card.small { grid-column: span 12; }
+  .skill-featured-grid { grid-template-columns: 1fr; }
+}
+
+/* ─── ACHIEVEMENTS ──────────────────────────────────────── */
+#achievements .ach-timeline { position: relative; padding-left: 2rem; }
+#achievements .ach-timeline::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 1px;
+  background: linear-gradient(to bottom, var(--accent), transparent);
+}
+.ach-item {
+  position: relative; padding: 0 0 3rem 3rem;
+  opacity: 0; transform: translateX(-20px);
+  transition: all .6s var(--ease);
+}
+.ach-item.visible { opacity: 1; transform: none; }
+.ach-dot {
+  position: absolute; left: -5px; top: 6px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px var(--bg), 0 0 0 6px rgba(122,92,250,0.3);
+}
+.ach-year {
+  font-family: var(--f-mono); font-size: 0.68rem; color: var(--accent);
+  letter-spacing: 0.1em; margin-bottom: 0.5rem;
+}
+.ach-title { font-family: var(--f-display); font-size: 1.4rem; font-weight: 400; margin-bottom: 0.5rem; }
+.ach-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.7; font-weight: 300; max-width: 500px; }
+.ach-badge {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  margin-top: 0.8rem; background: var(--accent-light); color: var(--accent);
+  padding: 0.3rem 0.8rem; border-radius: 100px;
+  font-size: 0.7rem; font-weight: 500;
+}
+
+/* ─── TESTIMONIALS ──────────────────────────────────────── */
+#testimonials .testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.testi-card {
+  background: var(--bg2); border-radius: 20px; padding: 2.2rem;
+  border: 1px solid var(--border);
+  position: relative;
+  transition: transform .3s var(--ease);
+}
+.testi-card:hover { transform: translateY(-4px); }
+.testi-card::before {
+  content: '\201C';
+  position: absolute; top: 1.5rem; right: 2rem;
+  font-family: var(--f-display); font-size: 4rem; line-height: 1;
+  color: var(--accent); opacity: 0.3; font-weight: 300;
+}
+.testi-quote {
+  font-size: 0.92rem; line-height: 1.8; color: var(--ink2);
+  font-weight: 300; margin-bottom: 1.8rem; font-style: italic;
+  font-family: var(--f-display); font-size: 1.05rem;
+}
+.testi-author { display: flex; align-items: center; gap: 1rem; }
+.testi-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--accent-light); display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0;
+}
+.testi-name { font-size: 0.88rem; font-weight: 500; }
+.testi-role { font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
+.testi-stars { color: #F59E0B; font-size: 0.75rem; margin-bottom: 0.3rem; }
+
+/* ─── CONTACT ───────────────────────────────────────────── */
+#contact { scroll-margin-top: 80px; }
+.contact-inner {
+  max-width: 1000px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8rem; align-items: start;
+}
+.contact-left .cl-headline {
+  font-family: var(--f-display); font-size: clamp(2rem, 3.5vw, 3.2rem);
+  font-weight: 300; line-height: 1.15; letter-spacing: -0.02em;
+  margin-bottom: 2rem;
+}
+.contact-left .cl-headline em { font-style: italic; color: var(--accent); }
+.contact-links { display: flex; flex-direction: column; gap: 1.2rem; }
+.contact-link {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1rem 1.2rem; border-radius: 12px;
+  border: 1px solid var(--border); background: var(--white);
+  transition: all .3s var(--ease);
+}
+.contact-link:hover { border-color: var(--accent); background: var(--accent-light); transform: translateX(4px); }
+.cl-icon { font-size: 1.2rem; width: 24px; text-align: center; }
+.cl-text { flex: 1; }
+.cl-label { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cl-val { font-size: 0.88rem; font-weight: 500; color: var(--ink); margin-top: 0.1rem; }
+
+/* Contact form */
+.contact-form { display: flex; flex-direction: column; gap: 1.2rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+.form-label { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+.form-input, .form-textarea {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 0.85rem 1rem;
+  font-family: var(--f-body); font-size: 0.88rem; color: var(--ink);
+  outline: none; transition: border-color .3s;
+  width: 100%;
+}
+.form-textarea { resize: vertical; min-height: 120px; }
+.form-input:focus, .form-textarea:focus { border-color: var(--accent); }
+.form-input::placeholder, .form-textarea::placeholder { color: rgba(17,17,17,0.3); }
+.form-submit {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
+  background: var(--ink); color: var(--bg);
+  padding: 1rem 2.5rem; border-radius: 100px;
+  border: none; cursor: none;
+  font-family: var(--f-body); font-size: 0.88rem; font-weight: 500;
+  letter-spacing: 0.04em; transition: all .3s var(--ease);
+  align-self: flex-start;
+}
+.form-submit:hover { background: var(--accent); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(122,92,250,0.3); }
+
+/* ─── FOOTER ────────────────────────────────────────────── */
+footer {
+  background: var(--ink); color: var(--bg);
+  padding: 3rem;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.foot-name {
+  font-family: var(--f-display); font-size: 1.2rem; font-weight: 400;
+}
+.foot-name span { color: var(--accent-mid); font-style: italic; }
+.foot-links { display: flex; gap: 1.5rem; }
+.foot-link {
+  font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: rgba(248,247,245,0.4); transition: color .3s;
+}
+.foot-link:hover { color: var(--bg); }
+.foot-copy { font-size: 0.75rem; color: rgba(248,247,245,0.3); }
+
+/* ─── ANIMATIONS & REVEAL ───────────────────────────────── */
+.reveal {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity .7s var(--ease), transform .7s var(--ease);
+}
+.reveal.visible { opacity: 1; transform: none; }
+.reveal-left { opacity: 0; transform: translateX(-40px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+.reveal-left.visible { opacity: 1; transform: none; }
+.reveal-right { opacity: 0; transform: translateX(40px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+.reveal-right.visible { opacity: 1; transform: none; }
+.delay-1 { transition-delay: .1s; }
+.delay-2 { transition-delay: .2s; }
+.delay-3 { transition-delay: .3s; }
+.delay-4 { transition-delay: .4s; }
+.delay-5 { transition-delay: .5s; }
+.delay-6 { transition-delay: .6s; }
+
+/* ─── AVAILABILITY BADGE ────────────────────────────────── */
+.avail-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: var(--white); border: 1px solid rgba(34,197,94,0.3);
+  padding: 0.4rem 1rem; border-radius: 100px;
+  font-size: 0.75rem; font-weight: 500; margin-bottom: 2rem;
+  color: #16a34a;
+}
+.avail-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; animation: pulse 2s infinite; }
+
+/* ─── LOADING SPINNER ───────────────────────────────────── */
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* ─── MARQUEE ────────────────────────────────────────────── */
+.marquee-section {
+  padding: 2rem 0; overflow: hidden;
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  background: var(--white);
+}
+.marquee-track {
+  display: flex; gap: 3rem; animation: marquee 20s linear infinite;
+  width: max-content; align-items: center;
+}
+.marquee-item {
+  display: flex; align-items: center; gap: 0.8rem;
+  font-family: var(--f-display); font-size: 1.1rem; font-weight: 300;
+  color: var(--muted); white-space: nowrap; letter-spacing: 0.02em;
+}
+.marquee-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ─── DARK MODE ─────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0E0E0E; --bg2: #161616; --ink: #F8F7F5; --ink2: #D0CFC9;
+    --muted: #777; --border: rgba(248,247,245,0.1); --white: #1C1C1C;
+  }
+  .form-input, .form-textarea { background: #1C1C1C; }
+}
+
+/* ─── RESPONSIVE ────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  nav { padding: 1.2rem 2rem; }
+  .nav-links { display: none; }
+  #hero { grid-template-columns: 1fr; padding: 7rem 2rem 4rem; }
+  .hero-right { height: 300px; }
+  #about .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+  .work-grid { grid-template-columns: 1fr; }
+  .project-card:first-child { grid-column: span 1; }
+  #testimonials .testi-grid { grid-template-columns: 1fr; }
+  .contact-inner { grid-template-columns: 1fr; gap: 3rem; }
+  .section { padding: 5rem 2rem; }
+  footer { flex-direction: column; gap: 2rem; text-align: center; }
+  .process-track { flex-direction: column; }
+  .process-track::before { display: none; }
+}
+@media (max-width: 640px) {
+  .hero-stats { flex-direction: column; gap: 1.5rem; }
+  .modal-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- Loader -->
+<div id="loader">
+  <div class="loader-name">
+    <span>Niharika</span> <span>Suru</span>
+  </div>
+  <div class="loader-bar"></div>
+</div>
+
+<!-- Navigation -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">N<span>S</span></a>
+  <div class="nav-links">
+    <a href="#work">Work</a>
+    <a href="#about">About</a>
+    <a href="#process">Process</a>
+    <a href="#skills">Skills</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <a href="#contact" class="nav-cta nav-links">Hire Me</a>
+</nav>
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<section id="hero">
+  <div class="hero-left">
+    <div class="avail-badge reveal">
+      <span class="avail-dot"></span>
+      Open to opportunities
+    </div>
+    <div class="hero-eyebrow reveal delay-1">UI/UX Designer & Frontend Developer</div>
+    <h1 class="hero-headline reveal delay-2">
+      Designing products<br>
+      that users <em>love</em><br>
+      and businesses trust.
+    </h1>
+    <p class="hero-sub reveal delay-3">
+      3+ years crafting enterprise applications, scalable design systems, and seamless digital experiences — bridging the gap between design and code.
+    </p>
+    <div class="hero-actions reveal delay-4">
+      <a href="#work" class="btn-primary">
+        View Case Studies
+        <i data-lucide="arrow-right" style="width:16px;height:16px;"></i>
+      </a>
+      <a href="./resume/UX-Resume-Niha.pdf" class="btn-outline" download>
+        Download Resume
+        <i data-lucide="download" style="width:16px;height:16px;"></i>
+      </a>
+      <a href="https://linkedin.com/in/niharikasuru" class="btn-icon" title="LinkedIn" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+      <a href="mailto:nihasuru54@gmail.com" class="btn-icon" title="Email"><i data-lucide="mail" style="width:18px;height:18px;"></i></a>
+    </div>
+    <div class="hero-stats reveal delay-5">
+      <div class="stat-item">
+        <div class="stat-num">3<span>+</span></div>
+        <div class="stat-label">Years Experience</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">10<span>+</span></div>
+        <div class="stat-label">Projects Delivered</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">30<span>%</span></div>
+        <div class="stat-label">Faster Prototyping</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right reveal-right">
+    <div class="hero-visual-main">
+      <div class="hero-visual-grid"></div>
+      <!-- Floating Cards -->
+      <div class="hero-card-float hcf1">
+        <div class="hcf-label">Task Completion Rate</div>
+        <div class="hcf-val"><i data-lucide="trending-up" style="width:18px;height:18px;display:inline;vertical-align:middle;"></i> <em>30%</em> Faster</div>
+        <div class="hcf-bar"><div class="hcf-bar-fill" style="width:78%"></div></div>
+        <div class="hcf-chip"><span class="hcf-dot"></span> Live Impact</div>
+      </div>
+      <div class="hero-card-float hcf3">
+        <div style="text-align:center; margin-bottom:0.8rem;"><i data-lucide="palette" style="width:40px;height:40px;color:var(--accent);"></i></div>
+        <div class="hcf-label" style="text-align:center">Currently Designing</div>
+        <div class="hcf-val" style="text-align:center; font-size:1rem">Enterprise Design System<br><em style="font-size:0.8rem; color:var(--muted)">Component Library v3</em></div>
+      </div>
+      <div class="hero-card-float hcf2">
+        <div class="hcf-label">Design + Code</div>
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.3rem;">
+          <span class="hcf-chip" style="background:var(--accent-light)"><i data-lucide="pen-tool" style="width:12px;height:12px;"></i> Figma</span>
+          <span class="hcf-chip" style="background:#EFF6FF; color:#3b82f6"><i data-lucide="atom" style="width:12px;height:12px;"></i> React</span>
+          <span class="hcf-chip" style="background:#F0FDF4; color:#16a34a"><i data-lucide="hexagon" style="width:12px;height:12px;"></i> Angular</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Marquee Band -->
+<div class="marquee-section">
+  <div class="marquee-track" id="marqueeTrack">
+    <span class="marquee-item"><span class="marquee-dot"></span>User Research</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Design Systems</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>React & Angular</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Figma Prototyping</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Enterprise UX</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Interaction Design</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Accessibility</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>TypeScript</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Information Architecture</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Usability Testing</span>
+    <!-- Duplicate for seamless loop -->
+    <span class="marquee-item"><span class="marquee-dot"></span>User Research</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Design Systems</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>React & Angular</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Figma Prototyping</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Enterprise UX</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Interaction Design</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Accessibility</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>TypeScript</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Information Architecture</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Usability Testing</span>
+  </div>
+</div>
+
+<!-- ═══════════════════ ABOUT ═══════════════════ -->
+<section id="about" class="section">
+  <div class="section-header reveal">
+    <div class="section-label">About Me</div>
+    <h2 class="section-title">Design thinker.<br><em>Frontend builder.</em></h2>
+  </div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="reveal">I'm a UI/UX Designer and Frontend Developer based in <strong>Visakhapatnam, India</strong>, specializing in <strong>enterprise applications</strong> that serve real users at scale. Over 3+ years, I've worked across healthcare platforms, consumer applications, and internal tools — always with the same goal: reduce complexity for the user.</p>
+      <p class="reveal delay-1">My background in <strong>frontend development</strong> (Angular, React, TypeScript) means I design with implementation in mind. I understand constraints, I speak the language of engineers, and I bridge the gap between pixel-perfect mockups and production reality.</p>
+      <p class="reveal delay-2">Design systems fascinate me — there's something deeply satisfying about creating <strong>reusable, accessible components</strong> that make entire teams move faster. I believe good design is invisible: it just works, quietly, in service of people.</p>
+      <div class="reveal delay-3" style="margin-top:2rem; display:flex; gap:1rem; flex-wrap:wrap;">
+        <a href="#work" class="btn-primary" style="padding:0.7rem 1.5rem; font-size:0.82rem">See My Work →</a>
+        <a href="#contact" class="btn-outline" style="padding:0.7rem 1.5rem; font-size:0.82rem">Let's Talk</a>
+      </div>
+    </div>
+    <div class="about-metrics">
+      <div class="metric-card reveal delay-1">
+        <div class="metric-icon"><i data-lucide="clock" style="width:24px;height:24px;color:var(--accent);"></i></div>
+        <div>
+          <div class="metric-num">3<span>+</span></div>
+          <div class="metric-desc">Years of experience in enterprise product design and frontend development</div>
+        </div>
+      </div>
+      <div class="metric-card reveal delay-2">
+        <div class="metric-icon"><i data-lucide="briefcase" style="width:24px;height:24px;color:var(--accent);"></i></div>
+        <div>
+          <div class="metric-num">10<span>+</span></div>
+          <div class="metric-desc">Real projects delivered across healthcare, sports, and enterprise sectors</div>
+        </div>
+      </div>
+      <div class="metric-card reveal delay-3">
+        <div class="metric-icon"><i data-lucide="zap" style="width:24px;height:24px;color:var(--accent);"></i></div>
+        <div>
+          <div class="metric-num">30<span>%</span></div>
+          <div class="metric-desc">Faster prototyping through systematic design tokens and component libraries</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ WORK ═══════════════════ -->
+<section id="work" class="section section-alt">
+  <div class="section-header reveal">
+    <div class="section-label">Case Studies</div>
+    <h2 class="section-title">Selected <em>work.</em></h2>
+    <p class="section-sub">Real problems. Thoughtful solutions. Measurable outcomes.</p>
+  </div>
+  
+  <div class="work-grid">
+    <!-- Case Study 1 - F2MX -->
+    <article class="case-study reveal">
+      <div class="cs-visual">
+        <div class="cs-visual-bg cs-bg-blue"></div>
+        <div class="cs-badge">Mobile App</div>
+        <div class="cs-mockup">
+          <img src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400&h=280&fit=crop" alt="F2MX Fantasy Sports" style="width:100%;border-radius:12px;box-shadow:0 16px 48px rgba(0,0,0,0.15);">
+        </div>
+      </div>
+      <div class="cs-content">
+        <div class="cs-header">
+          <div class="cs-category">Sports Tech · Mobile Platform</div>
+          <h3 class="cs-title">F2MX – Fantasy Sports Trading</h3>
+          <p class="cs-subtitle">A mobile-first fantasy sports platform that transforms complex player data into intuitive trading experiences.</p>
+        </div>
+        
+        <div class="cs-details">
+          <div class="cs-detail-item">
+            <div class="cs-detail-label">The Challenge</div>
+            <div class="cs-detail-text">Fantasy sports platforms overwhelmed users with dense statistics, causing high drop-off rates.</div>
+          </div>
+          <div class="cs-detail-item">
+            <div class="cs-detail-label">My Approach</div>
+            <div class="cs-detail-text">Progressive disclosure patterns and smart defaults to surface the right information at the right time.</div>
+          </div>
+        </div>
+        
+        <!-- <div class="cs-metrics">
+          <div class="cs-metric">
+            <div class="cs-metric-value">25%</div>
+            <div class="cs-metric-label">Higher Retention</div>
+          </div>
+          <div class="cs-metric">
+            <div class="cs-metric-value">3x</div>
+            <div class="cs-metric-label">Trade Volume</div>
+          </div>
+          <div class="cs-metric">
+            <div class="cs-metric-value">4.6★</div>
+            <div class="cs-metric-label">App Store</div>
+          </div>
+        </div>
+         -->
+        <div class="cs-footer">
+          <div class="cs-tags">
+            <span class="cs-tag">React Native</span>
+            <span class="cs-tag">TypeScript</span>
+          </div>
+          <a href="https://fan-2-market-experience.github.io/f2mx-dev-mobile/#/login" target="_blank" class="cs-cta">Live Prototype <i data-lucide="external-link" style="width:14px;height:14px;"></i></a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Case Study 2 - GreenRoot -->
+    <article class="case-study reveal delay-1">
+      <div class="cs-visual">
+        <div class="cs-visual-bg cs-bg-green"></div>
+        <div class="cs-mockup">
+          <img src="https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=400&h=280&fit=crop" alt="GreenRoot Plant Shop" style="width:100%;border-radius:12px;box-shadow:0 16px 48px rgba(0,0,0,0.15);">
+        </div>
+      </div>
+      <div class="cs-content">
+        <div class="cs-header">
+          <div class="cs-category">E-Commerce · Sustainability</div>
+          <h3 class="cs-title">GreenRoot – Plant E-Commerce</h3>
+          <p class="cs-subtitle">A sustainable plant shopping experience with eco-friendly packaging and a tree-planting mission.</p>
+        </div>
+        
+        <div class="cs-details">
+          <div class="cs-detail-item">
+            <div class="cs-detail-label">The Challenge</div>
+            <div class="cs-detail-text">Plant enthusiasts wanted shopping aligned with eco-conscious values, but platforms lacked sustainability focus.</div>
+          </div>
+          <div class="cs-detail-item">
+            <div class="cs-detail-label">My Approach</div>
+            <div class="cs-detail-text">Immersive shopping with sustainability metrics, care guides, and community testimonials.</div>
+          </div>
+        </div>
+        
+        <!-- <div class="cs-metrics">
+          <div class="cs-metric">
+            <div class="cs-metric-value">50K+</div>
+            <div class="cs-metric-label">Trees Planted</div>
+          </div>
+          <div class="cs-metric">
+            <div class="cs-metric-value">35%</div>
+            <div class="cs-metric-label">Conversion</div>
+          </div>
+          <div class="cs-metric">
+            <div class="cs-metric-value">250+</div>
+            <div class="cs-metric-label">Varieties</div>
+          </div>
+        </div> -->
+        
+        <div class="cs-footer">
+          <div class="cs-tags">
+            <span class="cs-tag">React</span>
+            <span class="cs-tag">Tailwind CSS</span>
+          </div>
+          <a href="https://appgreenroot.netlify.app/" target="_blank" class="cs-cta">Live Prototype <i data-lucide="external-link" style="width:14px;height:14px;"></i></a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Case Study 3 - CarePulse -->
+    <article class="case-study reveal delay-2">
+      <div class="cs-visual">
+        <div class="cs-visual-bg cs-bg-purple"></div>
+        <div class="cs-badge">Featured</div>
+        <div class="cs-mockup">
+          <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&h=280&fit=crop" alt="CarePulse Healthcare Dashboard" style="width:100%;border-radius:12px;box-shadow:0 16px 48px rgba(0,0,0,0.15);">
+        </div>
+      </div>
+      <div class="cs-content">
+        <div class="cs-header">
+          <div class="cs-category">Healthcare · Patient Portal</div>
+          <h3 class="cs-title">CarePulse – Health Portal</h3>
+          <p class="cs-subtitle">A patient portal for appointments, vitals tracking, health packages, and doctor consultations.</p>
+        </div>
+        
+        <div class="cs-details">
+          <div class="cs-detail-item">
+            <div class="cs-detail-label">The Challenge</div>
+            <div class="cs-detail-text">Patients struggled with fragmented healthcare – booking, tracking vitals, and managing plans across platforms.</div>
+          </div>
+          <div class="cs-detail-item">
+            <div class="cs-detail-label">My Approach</div>
+            <div class="cs-detail-text">Unified dashboard with personalized health overview, one-click booking, and real-time vitals tracking.</div>
+          </div>
+        </div>
+        
+        <!-- <div class="cs-metrics">
+          <div class="cs-metric">
+            <div class="cs-metric-value">40%</div>
+            <div class="cs-metric-label">Faster Booking</div>
+          </div>
+          <div class="cs-metric">
+            <div class="cs-metric-value">60%</div>
+            <div class="cs-metric-label">Engagement</div>
+          </div>
+          <div class="cs-metric">
+            <div class="cs-metric-value">4.8★</div>
+            <div class="cs-metric-label">Rating</div>
+          </div>
+        </div> -->
+        
+        <div class="cs-footer">
+          <div class="cs-tags">
+            <span class="cs-tag">React</span>
+            <span class="cs-tag">Next.js</span>
+          </div>
+          <a href="https://appcarepulse.netlify.app/" target="_blank" class="cs-cta">Live Prototype <i data-lucide="external-link" style="width:14px;height:14px;"></i></a>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ═══════════════════ PROCESS ═══════════════════ -->
+<section id="process" class="section">
+  <div class="section-header reveal">
+    <div class="section-label">How I Work</div>
+    <h2 class="section-title">My design <em>process.</em></h2>
+    <p class="section-sub">A structured, iterative approach from understanding real problems to shipping polished solutions.</p>
+  </div>
+  <div class="process-track">
+    <div class="process-step reveal delay-1">
+      <div class="ps-icon"><i data-lucide="search" style="width:28px;height:28px;color:var(--accent);"></i></div>
+      <div class="ps-num">01</div>
+      <div class="ps-label">Discover</div>
+      <div class="ps-desc">Stakeholder interviews, competitive analysis, and context mapping to define the real problem.</div>
+    </div>
+    <div class="process-step reveal delay-2">
+      <div class="ps-icon"><i data-lucide="bar-chart-3" style="width:28px;height:28px;color:var(--accent);"></i></div>
+      <div class="ps-num">02</div>
+      <div class="ps-label">Research</div>
+      <div class="ps-desc">User interviews, surveys, and usability studies to validate assumptions with evidence.</div>
+    </div>
+    <div class="process-step reveal delay-3">
+      <div class="ps-icon"><i data-lucide="lightbulb" style="width:28px;height:28px;color:var(--accent);"></i></div>
+      <div class="ps-num">03</div>
+      <div class="ps-label">Ideate</div>
+      <div class="ps-desc">Rapid sketching, divergent thinking, and collaborative workshops to explore solutions.</div>
+    </div>
+    <div class="process-step reveal delay-4">
+      <div class="ps-icon"><i data-lucide="pen-tool" style="width:28px;height:28px;color:var(--accent);"></i></div>
+      <div class="ps-num">04</div>
+      <div class="ps-label">Design</div>
+      <div class="ps-desc">From low-fi wireframes to high-fidelity Figma prototypes with full design system tokens.</div>
+    </div>
+    <div class="process-step reveal delay-5">
+      <div class="ps-icon"><i data-lucide="layers" style="width:28px;height:28px;color:var(--accent);"></i></div>
+      <div class="ps-num">05</div>
+      <div class="ps-label">Prototype</div>
+      <div class="ps-desc">Interactive Figma flows and React/Angular components for realistic usability testing.</div>
+    </div>
+    <div class="process-step reveal delay-6">
+      <div class="ps-icon"><i data-lucide="flask-conical" style="width:28px;height:28px;color:var(--accent);"></i></div>
+      <div class="ps-num">06</div>
+      <div class="ps-label">Test & Iterate</div>
+      <div class="ps-desc">Usability tests, A/B experiments, and data-driven iterations until the design truly works.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ SKILLS ═══════════════════ -->
+<section id="skills" class="section section-alt">
+  <div class="section-header reveal">
+    <div class="section-label">Expertise</div>
+    <h2 class="section-title">Skills &amp; <em>tools.</em></h2>
+    <p class="section-sub">A curated toolkit built over 3+ years of shipping enterprise products across real estate, sports tech, and lead management.</p>
+  </div>
+  
+  <div class="skills-container">
+    <!-- Design Tools & Practices - Large Card -->
+    <div class="skill-card large reveal">
+      <div class="skill-card-header">
+        <span class="skill-card-badge">Core Expertise</span>
+      </div>
+      <h3 class="skill-card-title">Design Tools & Practices</h3>
+      <div class="skill-badges">
+        <span class="skill-badge primary">Figma</span>
+        <span class="skill-badge primary">Adobe XD</span>
+        <span class="skill-badge">Canva</span>
+        <span class="skill-badge">Balsamiq</span>
+        <span class="skill-badge">Wireframing</span>
+        <span class="skill-badge">Prototyping</span>
+        <span class="skill-badge primary">Design Systems</span>
+        <span class="skill-badge">UI/UX Design</span>
+        <span class="skill-badge">Responsive Design</span>
+        <span class="skill-badge">Usability Testing</span>
+        <span class="skill-badge">A/B Testing</span>
+        <span class="skill-badge">Micro-interactions</span>
+        <span class="skill-badge">User Flows</span>
+        <span class="skill-badge">Information Architecture</span>
+        <span class="skill-badge">Color Theory</span>
+        <span class="skill-badge">Accessibility</span>
+      </div>
+    </div>
+
+    <!-- Frontend Development - Large Card -->
+    <div class="skill-card large reveal delay-1">
+      <div class="skill-card-header">
+        <span class="skill-card-badge">Core Expertise</span>
+      </div>
+      <h3 class="skill-card-title">Frontend Development</h3>
+      <div class="skill-badges">
+        <span class="skill-badge primary">Angular</span>
+        <span class="skill-badge primary">React</span>
+        <span class="skill-badge primary">Next.js</span>
+        <span class="skill-badge primary">TypeScript</span>
+        <span class="skill-badge">JavaScript</span>
+        <span class="skill-badge">HTML5 & CSS3</span>
+        <span class="skill-badge">Tailwind CSS</span>
+        <span class="skill-badge">SASS/SCSS</span>
+        <span class="skill-badge">Bootstrap</span>
+        <span class="skill-badge">PrimeNG</span>
+        <span class="skill-badge">Material UI</span>
+        <span class="skill-badge">ShadCN UI</span>
+      </div>
+    </div>
+
+    <!-- AI Design Tools - Medium Card -->
+    <div class="skill-card medium reveal delay-2">
+      <div class="skill-card-header">
+        <span class="skill-card-badge accent">AI-Powered</span>
+      </div>
+      <h3 class="skill-card-title">AI Design Tools</h3>
+      <div class="skill-badges">
+        <span class="skill-badge">Figma Make AI</span>
+        <span class="skill-badge">ChatGPT</span>
+        <span class="skill-badge">Claude</span>
+        <span class="skill-badge">UX Magic</span>
+        <span class="skill-badge">Stitch</span>
+      </div>
+      <p style="font-size:0.8rem; color:var(--muted); margin-top:1rem; line-height:1.5;">Accelerating ideation and iteration cycles by 30%</p>
+    </div>
+
+    <!-- Backend - Medium Card -->
+    <div class="skill-card medium reveal delay-3">
+      <h3 class="skill-card-title">Backend & APIs</h3>
+      <div class="skill-badges">
+        <span class="skill-badge">Node.js</span>
+        <span class="skill-badge">Express.js</span>
+        <span class="skill-badge">MySQL</span>
+        <span class="skill-badge">REST APIs</span>
+        <span class="skill-badge">CRUD Operations</span>
+        <span class="skill-badge">API Integration</span>
+      </div>
+    </div>
+
+    <!-- Dev Tools - Wide Card -->
+    <div class="skill-card wide reveal delay-4">
+      <h3 class="skill-card-title">Development & Collaboration Tools</h3>
+      <div class="skill-badges">
+        <span class="skill-badge">VS Code</span>
+        <span class="skill-badge">Git</span>
+        <span class="skill-badge">GitHub</span>
+        <span class="skill-badge">Jira</span>
+        <span class="skill-badge">Postman</span>
+        <span class="skill-badge">Lambda Testing</span>
+      </div>
+    </div>
+
+    <!-- Experience Stats Card -->
+    <div class="skill-card small reveal delay-5" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-mid) 100%);">
+      <div style="position:relative; z-index:1;">
+        <div style="font-family:var(--f-display); font-size:3.5rem; font-weight:300; color:white; line-height:1;">3+</div>
+        <div style="font-size:0.85rem; color:rgba(255,255,255,0.9); margin-top:0.5rem; font-weight:500;">Years Experience</div>
+        <div style="font-size:0.75rem; color:rgba(255,255,255,0.7); margin-top:0.8rem; line-height:1.5;">Enterprise web & mobile products across real estate, sports tech & lead management</div>
+      </div>
+    </div>
+
+    <!-- Impact Card -->
+    <div class="skill-card small reveal delay-6" style="background: var(--ink);">
+      <div style="position:relative; z-index:1;">
+        <div style="font-family:var(--f-display); font-size:2.5rem; font-weight:300; color:var(--accent); line-height:1;">25%</div>
+        <div style="font-size:0.85rem; color:rgba(255,255,255,0.9); margin-top:0.5rem; font-weight:500;">Faster Navigation</div>
+        <div style="font-size:0.75rem; color:rgba(255,255,255,0.6); margin-top:0.8rem; line-height:1.5;">Reduced user navigation time on Genesis CRM platform</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ACHIEVEMENTS ═══════════════════ -->
+<section id="achievements" class="section">
+  <div class="section-header reveal">
+    <div class="section-label">Recognition</div>
+    <h2 class="section-title">Achievements &amp; <em>milestones.</em></h2>
+  </div>
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8rem; align-items:start;">
+    <div class="ach-timeline">
+      <div class="ach-item">
+        <div class="ach-dot"></div>
+        <div class="ach-year">2024</div>
+        <div class="ach-title"><i data-lucide="star" style="width:18px;height:18px;color:#f59e0b;vertical-align:middle;margin-right:6px;"></i>Star Performer Award</div>
+        <div class="ach-desc">Recognized for outstanding contributions to the healthcare management platform redesign, delivering measurable improvements in clinical staff efficiency.</div>
+        <div class="ach-badge"><i data-lucide="trophy" style="width:12px;height:12px;"></i> Top 5% Performer</div>
+      </div>
+      <div class="ach-item">
+        <div class="ach-dot"></div>
+        <div class="ach-year">2023</div>
+        <div class="ach-title"><i data-lucide="medal" style="width:18px;height:18px;color:#f59e0b;vertical-align:middle;margin-right:6px;"></i>Hackathon Winner</div>
+        <div class="ach-desc">Led design for a winning team at an internal product hackathon, delivering a fully prototyped patient scheduling feature in 24 hours.</div>
+        <div class="ach-badge"><i data-lucide="target" style="width:12px;height:12px;"></i> 1st Place, 120 participants</div>
+      </div>
+    </div>
+    <div class="ach-timeline">
+      <div class="ach-item">
+        <div class="ach-dot"></div>
+        <div class="ach-year">2023</div>
+        <div class="ach-title"><i data-lucide="component" style="width:18px;height:18px;color:var(--accent);vertical-align:middle;margin-right:6px;"></i>Design System Contributor</div>
+        <div class="ach-desc">Authored and maintained 60+ reusable components in the enterprise design system, adopted across 6 product teams and reducing design inconsistency by 70%.</div>
+        <div class="ach-badge"><i data-lucide="package" style="width:12px;height:12px;"></i> 60+ Components Shipped</div>
+      </div>
+      <div class="ach-item">
+        <div class="ach-dot"></div>
+        <div class="ach-year">2024</div>
+        <div class="ach-title"><i data-lucide="sparkles" style="width:18px;height:18px;color:var(--accent);vertical-align:middle;margin-right:6px;"></i>AI Productivity Champion</div>
+        <div class="ach-desc">Pioneered AI-assisted design workflows using Claude and Midjourney for rapid ideation, cutting early-stage exploration time by 40%.</div>
+        <div class="ach-badge"><i data-lucide="zap" style="width:12px;height:12px;"></i> 40% Faster Exploration</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ TESTIMONIALS ═══════════════════ -->
+<!-- <section id="testimonials" class="section section-alt">
+  <div class="section-header reveal">
+    <div class="section-label">Social Proof</div>
+    <h2 class="section-title">What people <em>say.</em></h2>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-quote">Niharika has a rare ability to balance visual aesthetics with deep functional thinking. Her redesign of our patient portal saved our clinical staff hours every week. She doesn't just design — she solves problems.</div>
+      <div class="testi-author">
+        <div class="testi-avatar">👩‍💼</div>
+        <div>
+          <div class="testi-name">Priya Menon</div>
+          <div class="testi-role">Product Manager, Healthcare Platform</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal delay-1">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-quote">What sets Niharika apart is her frontend background. She hands off designs that engineers can actually build. No guesswork, no back-and-forth. The design system she created made our whole team move faster.</div>
+      <div class="testi-author">
+        <div class="testi-avatar">👨‍💻</div>
+        <div>
+          <div class="testi-name">Arjun Reddy</div>
+          <div class="testi-role">Engineering Lead, Frontend</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal delay-2">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-quote">She joined mid-sprint and completely transformed how we approached user flows. Her research instincts are sharp, her Figma work is meticulous, and she brings energy to the whole team. An absolute asset.</div>
+      <div class="testi-author">
+        <div class="testi-avatar">👩‍🎨</div>
+        <div>
+          <div class="testi-name">Kavya Sharma</div>
+          <div class="testi-role">Design Lead, Product Studio</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section> -->
+
+<!-- ═══════════════════ CONTACT ═══════════════════ -->
+<section id="contact" class="section">
+  <div class="contact-inner">
+    <div class="contact-left reveal-left">
+      <div class="section-label" style="margin-bottom:1.2rem;">Get In Touch</div>
+      <h2 class="cl-headline">Let's build <em>meaningful</em> digital experiences together.</h2>
+      <p style="font-size:0.92rem; color:var(--muted); margin-bottom:2rem; line-height:1.7;">
+        I'm currently open to full-time Product Designer, UX Designer, and UX Engineer roles — especially in SaaS and enterprise products.
+      </p>
+      <div class="contact-links">
+        <a href="mailto:niharika.suru@email.com" class="contact-link">
+          <span class="cl-icon"><i data-lucide="mail" style="width:20px;height:20px;"></i></span>
+          <div class="cl-text">
+            <div class="cl-label">Email</div>
+            <div class="cl-val">niharika.suru@email.com</div>
+          </div>
+        </a>
+        <a href="https://linkedin.com/in/niharikasuru" class="contact-link" target="_blank">
+          <span class="cl-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></span>
+          <div class="cl-text">
+            <div class="cl-label">LinkedIn</div>
+            <div class="cl-val">linkedin.com/in/niharikasuru</div>
+          </div>
+        </a>
+        <a href="./resume/UX-Resume-Niha.pdf" class="contact-link" download>
+          <span class="cl-icon"><i data-lucide="file-text" style="width:20px;height:20px;"></i></span>
+          <div class="cl-text">
+            <div class="cl-label">Resume</div>
+            <div class="cl-val">Download PDF</div>
+          </div>
+        </a>
+        <div class="contact-link" style="cursor:default;">
+          <span class="cl-icon"><i data-lucide="map-pin" style="width:20px;height:20px;"></i></span>
+          <div class="cl-text">
+            <div class="cl-label">Location</div>
+            <div class="cl-val">Visakhapatnam, India · Open to Remote</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal-right">
+      <form class="contact-form" onsubmit="handleSubmit(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input type="text" class="form-input" placeholder="Riya">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input type="text" class="form-input" placeholder="Verma">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" placeholder="riya@company.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Company</label>
+          <input type="text" class="form-input" placeholder="Your Company">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Message</label>
+          <textarea class="form-textarea" placeholder="Tell me about the role or project…"></textarea>
+        </div>
+        <button type="submit" class="form-submit">
+          Send Message <i data-lucide="send" style="width:16px;height:16px;"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<footer>
+  <div class="foot-name">Niharika <span>Suru</span></div>
+  <div class="foot-links">
+    <a href="./resume/UX-Resume-Niha.pdf" class="foot-link" download><i data-lucide="file-text" style="width:14px;height:14px;margin-right:4px;vertical-align:middle;"></i>Resume</a>
+    <a href="https://linkedin.com/in/niharikasuru" class="foot-link" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right:4px;vertical-align:middle;"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>LinkedIn</a>
+    <!-- <a href="https://github.com/niharikasuru" class="foot-link" target="_blank"><i data-lucide="git-branch" style="width:14px;height:14px;margin-right:4px;vertical-align:middle;"></i>GitHub</a> -->
+    <a href="mailto:niharika.suru@email.com" class="foot-link"><i data-lucide="mail" style="width:14px;height:14px;margin-right:4px;vertical-align:middle;"></i>Email</a>
+  </div>
+  <div class="foot-copy">© 2024 Niharika Suru · Designed with intention.</div>
+</footer>
+
+<!-- ═══════════════════ CASE STUDY MODALS ═══════════════════ -->
+<div class="modal-overlay" id="modal-healthcare">
+  <div class="modal">
+    <div class="modal-hero pc-bg-1"><i data-lucide="building-2" style="width:100px;height:100px;color:var(--accent);"></i>
+      <button class="modal-close" onclick="closeModal('healthcare')"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tag">Real Estate · Enterprise CRM · 2023-Present</div>
+      <h2 class="modal-title">Genesis CRM & Pilot System (GPS)</h2>
+
+      <div class="modal-section">
+        <div class="modal-section-label">Overview</div>
+        <p>A comprehensive CRM application for the real estate domain built in an Agile environment. Led end-to-end UI/UX design for improving workflow efficiency across multiple business modules.</p>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-label">Problem Statement</div>
+        <p>The existing interface had complex navigation patterns causing inefficiency in key workflows. Users were struggling with inconsistent UI across legacy and new modules, leading to confusion and increased support queries.</p>
+      </div>
+
+      <div class="modal-grid">
+        <div class="modal-card">
+          <h4>My Role</h4>
+          <p>Lead UI/UX Designer responsible for user flows, wireframes, interaction patterns, and production-ready designs.</p>
+        </div>
+        <div class="modal-card">
+          <h4>Tech Stack</h4>
+          <p>Angular v9 → v19 migration, TypeScript, PrimeNG, Bootstrap, Tailwind CSS</p>
+        </div>
+        <div class="modal-card">
+          <h4>Collaboration</h4>
+          <p>Worked with Business Analysts, QA, and developers in Agile sprints to refine user journeys and ensure sprint-ready delivery.</p>
+        </div>
+        <div class="modal-card">
+          <h4>Key Focus</h4>
+          <p>Applied WCAG accessibility standards, enhancing readability and usability for a wider range of users.</p>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-label">Outcomes & Metrics</div>
+        <div class="modal-grid">
+          <div class="modal-card" style="text-align:center;">
+            <div class="outcome-stat">25%</div>
+            <div class="outcome-label">Reduction in user navigation time</div>
+          </div>
+          <div class="modal-card" style="text-align:center;">
+            <div class="outcome-stat">30%</div>
+            <div class="outcome-label">Reduced implementation gaps</div>
+          </div>
+          <div class="modal-card" style="text-align:center;">
+            <div class="outcome-stat">20%</div>
+            <div class="outcome-label">Less user confusion & support queries</div>
+          </div>
+          <div class="modal-card" style="text-align:center;">
+            <div class="outcome-stat">v19</div>
+            <div class="outcome-label">Angular migration completed</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-label">Key Learnings</div>
+        <p>Close collaboration with engineers reduced design-to-development gaps significantly. Applying AI-assisted design workflows accelerated delivery while maintaining UX quality. Consistency across legacy and new modules was crucial for user adoption.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-sports">
+  <div class="modal">
+    <div class="modal-hero pc-bg-2"><i data-lucide="trophy" style="width:100px;height:100px;color:#3b82f6;"></i>
+      <button class="modal-close" onclick="closeModal('sports')"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tag">Sports Tech · Mobile Product Design</div>
+      <h2 class="modal-title">F2MX – Fantasy Sports Trading Platform</h2>
+      <div class="modal-section">
+        <div class="modal-section-label">Overview</div>
+        <p>A mobile-first fantasy sports trading platform designed to improve user engagement and interaction clarity across data-heavy screens. The platform serves both end users and administrators with role-based functionality.</p>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">Problem Statement</div>
+        <p>Users struggled with complex data visualization and trading decisions, leading to onboarding friction and lower engagement. The platform needed to balance usability with the inherent complexity of fantasy sports data.</p>
+      </div>
+      <div class="modal-grid">
+        <div class="modal-card"><h4>My Role</h4><p>Mobile Product Designer leading end-to-end user journeys for end users and administrators.</p></div>
+        <div class="modal-card"><h4>Approach</h4><p>Applied rapid prototyping and AI-assisted workflows to reduce design iteration cycles by 30%.</p></div>
+      </div>
+      <div class="modal-section" style="margin-top:2rem;">
+        <div class="modal-section-label">Solutions Designed</div>
+        <div class="modal-steps">
+          <div class="modal-step"><div class="step-num">01</div><div class="step-content"><h4>User Journey Mapping</h4><p>Defined end-to-end user journeys for both end users and administrators, reducing onboarding friction by 20%.</p></div></div>
+          <div class="modal-step"><div class="step-num">02</div><div class="step-content"><h4>Mobile-First UX Optimization</h4><p>Optimized mobile UX for performance-driven interactions, improving user retention and session engagement by 15%.</p></div></div>
+          <div class="modal-step"><div class="step-num">03</div><div class="step-content"><h4>Data Visualization Balance</h4><p>Balanced usability and engagement for complex data visualization, enhancing decision-making speed.</p></div></div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">Outcomes</div>
+        <div class="modal-grid">
+          <div class="modal-card" style="text-align:center;"><div class="outcome-stat">20%</div><div class="outcome-label">Reduction in onboarding friction</div></div>
+          <div class="modal-card" style="text-align:center;"><div class="outcome-stat">15%</div><div class="outcome-label">Improved user retention</div></div>
+          <div class="modal-card" style="text-align:center;"><div class="outcome-stat">30%</div><div class="outcome-label">Faster design iterations</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-design-system">
+  <div class="modal">
+    <div class="modal-hero pc-bg-3"><i data-lucide="users" style="width:100px;height:100px;color:#16a34a;"></i>
+      <button class="modal-close" onclick="closeModal('design-system')"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tag">Lead Management · Productivity Platform</div>
+      <h2 class="modal-title">Revup – Lead Management & Productivity</h2>
+      <div class="modal-section">
+        <div class="modal-section-label">Overview</div>
+        <p>A lead management and productivity web application focused on communication, scheduling, and collaboration workflows. Built multi-user interfaces with integrated Google Calendar and Gmail APIs.</p>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">Problem Statement</div>
+        <p>The existing lead management workflows lacked clarity, causing inefficient task handling and longer completion times. Users needed intuitive multi-user interfaces for better collaboration.</p>
+      </div>
+      <div class="modal-grid">
+        <div class="modal-card"><h4>My Role</h4><p>Product Designer leading workflow redesign and building scalable UI patterns.</p></div>
+        <div class="modal-card"><h4>Tech Stack</h4><p>React, ShadCN UI, Material UI, Google Calendar API, Gmail API integration.</p></div>
+      </div>
+      <div class="modal-section" style="margin-top:2rem;">
+        <div class="modal-section-label">Key Contributions</div>
+        <div class="modal-steps">
+          <div class="modal-step"><div class="step-num">01</div><div class="step-content"><h4>Workflow Redesign</h4><p>Redesigned lead management workflows, improving task clarity and increasing user efficiency by 20%.</p></div></div>
+          <div class="modal-step"><div class="step-num">02</div><div class="step-content"><h4>Multi-User Interfaces</h4><p>Created intuitive multi-user interfaces for communication, scheduling, and collaboration, reducing task completion time by 15%.</p></div></div>
+          <div class="modal-step"><div class="step-num">03</div><div class="step-content"><h4>Scalable UI Components</h4><p>Built scalable UI patterns and reusable components, improving design consistency and reducing design rework by 25%.</p></div></div>
+          <div class="modal-step"><div class="step-num">04</div><div class="step-content"><h4>AI-Assisted Workflows</h4><p>Leveraged AI-assisted design workflows to accelerate ideation and iteration cycles by 30%.</p></div></div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">Outcomes</div>
+        <div class="modal-grid">
+          <div class="modal-card" style="text-align:center;"><div class="outcome-stat">20%</div><div class="outcome-label">Increased user efficiency</div></div>
+          <div class="modal-card" style="text-align:center;"><div class="outcome-stat">15%</div><div class="outcome-label">Faster task completion</div></div>
+          <div class="modal-card" style="text-align:center;"><div class="outcome-stat">25%</div><div class="outcome-label">Reduced design rework</div></div>
+          <div class="modal-card" style="text-align:center;"><div class="outcome-stat">30%</div><div class="outcome-label">Faster iterations with AI</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── SUPABASE CONFIGURATION ───────────────────────────────
+// Replace these with your Supabase project credentials
+const SUPABASE_URL = 'https://zioeezhdlleswpcnockf.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_Q06VKQWygOBB0mnRJ-yxsQ_4qwKgCSd';
+
+// Initialize Supabase client (only if credentials are set)
+let supabaseClient = null;
+if (SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
+  supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+// ─── LUCIDE ICONS INIT ────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+});
+
+// ─── LOADER ───────────────────────────────────────────────
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hide');
+    setTimeout(() => document.getElementById('loader').remove(), 1000);
+  }, 1600);
+  // Re-initialize Lucide icons after load
+  lucide.createIcons();
+});
+
+// ─── CUSTOM CURSOR ────────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+});
+function animateRing() {
+  rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+document.querySelectorAll('a, button, .project-card, .testi-card, .skill-card, .tool-logo').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.width = '6px'; cursor.style.height = '6px';
+    ring.style.width = '56px'; ring.style.height = '56px';
+    ring.style.opacity = '0.8'; ring.style.borderColor = 'var(--accent)';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.width = '12px'; cursor.style.height = '12px';
+    ring.style.width = '36px'; ring.style.height = '36px';
+    ring.style.opacity = '0.5'; ring.style.borderColor = 'var(--accent)';
+  });
+});
+
+// ─── NAV SCROLL & ACTIVE STATE ────────────────────────────
+const navLinks = document.querySelectorAll('.nav-links a:not(.nav-cta)');
+const sections = document.querySelectorAll('section[id]');
+
+function updateActiveNav() {
+  const scrollY = window.scrollY;
+  
+  // Add scrolled class to navbar
+  document.getElementById('navbar').classList.toggle('scrolled', scrollY > 60);
+  
+  // Update active nav link based on scroll position
+  sections.forEach(section => {
+    const sectionTop = section.offsetTop - 150;
+    const sectionHeight = section.offsetHeight;
+    const sectionId = section.getAttribute('id');
+    
+    if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + sectionId) {
+          link.classList.add('active');
+        }
+      });
+    }
+  });
+}
+
+window.addEventListener('scroll', updateActiveNav);
+
+// Also update active state when clicking nav links
+navLinks.forEach(link => {
+  link.addEventListener('click', function() {
+    navLinks.forEach(l => l.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// ─── INTERSECTION OBSERVER ────────────────────────────────
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .ach-item, .skill-card').forEach(el => io.observe(el));
+
+// ─── MODALS ───────────────────────────────────────────────
+function openModal(id) {
+  const m = document.getElementById('modal-' + id);
+  m.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById('modal-' + id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => {
+      m.classList.remove('open'); document.body.style.overflow = '';
+    });
+  }
+});
+
+// ─── FORM SUBMISSION WITH SUPABASE ────────────────────────
+async function handleSubmit(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('.form-submit');
+  const form = e.target;
+  
+  // Get form data
+  const formData = {
+    first_name: form.querySelector('input[placeholder="Riya"]').value,
+    last_name: form.querySelector('input[placeholder="Verma"]').value,
+    email: form.querySelector('input[type="email"]').value,
+    company: form.querySelector('input[placeholder="Your Company"]').value,
+    message: form.querySelector('textarea').value,
+    submitted_at: new Date().toISOString()
+  };
+  
+  // Show loading state
+  btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Sending...';
+  btn.style.pointerEvents = 'none';
+  lucide.createIcons();
+  
+  try {
+    // If Supabase is configured, save to database
+    if (supabaseClient) {
+      const { data, error } = await supabaseClient
+        .from('contact_submissions')
+        .insert([formData]);
+      
+      if (error) throw error;
+    }
+    
+    // Success state
+    btn.innerHTML = '<i data-lucide="check" style="width:16px;height:16px;"></i> Message Sent!';
+    btn.style.background = '#16a34a';
+    lucide.createIcons();
+    
+    // Reset form
+    form.reset();
+    
+    // Reset button after 3 seconds
+    setTimeout(() => {
+      btn.innerHTML = 'Send Message <i data-lucide="send" style="width:16px;height:16px;"></i>';
+      btn.style.background = '';
+      btn.style.pointerEvents = '';
+      lucide.createIcons();
+    }, 3000);
+    
+  } catch (error) {
+    console.error('Error submitting form:', error);
+    btn.innerHTML = '<i data-lucide="alert-circle" style="width:16px;height:16px;"></i> Error - Try Again';
+    btn.style.background = '#dc2626';
+    lucide.createIcons();
+    
+    setTimeout(() => {
+      btn.innerHTML = 'Send Message <i data-lucide="send" style="width:16px;height:16px;"></i>';
+      btn.style.background = '';
+      btn.style.pointerEvents = '';
+      lucide.createIcons();
+    }, 3000);
+  }
+}
+
+// ─── RE-INITIALIZE LUCIDE AFTER MODAL OPEN ────────────────
+function reinitIcons() {
+  setTimeout(() => lucide.createIcons(), 100);
+}
+</script>
+</body>
+</html>
